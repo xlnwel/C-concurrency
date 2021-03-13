@@ -51,8 +51,6 @@ namespace utility {
         const std::thread& get_thread() const noexcept {
             return t;
         }
-
-
     private:
         std::thread t;
     };

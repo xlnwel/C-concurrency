@@ -7,7 +7,7 @@
 namespace utility {
     """ Async that returns std::experimental::future """
     template<typename Function, typename... Args, 
-        typename ReturnType=std::result_of<std::decay_t<Function>(std::decay_t<Args>...)>>
+        typename ReturnType=typename std::result_of<std::decay_t<Function>(std::decay_t<Args>...)>::type>
     std::experimental::future<ReturnType> experimental_async(Function&& func, Args&&... args){
         using ReturnType = ;
         std::experimental::promise<ReturnType> p; 

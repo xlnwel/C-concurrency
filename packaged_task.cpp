@@ -10,7 +10,7 @@ using namespace utility;
 
 
 /* A reimplementation of List 4.9 */
-ThreadSafeQueue<std::packaged_task<int()>, std::list<std::packaged_task<int()>>> task_queue;	// thread safe queue, which handles locks inside
+LockBasedQueue<std::packaged_task<int()>, std::list<std::packaged_task<int()>>> task_queue;	// thread safe queue, which handles locks inside
 void task_execution_thread() {
     bool x = true;
     while (x) { // for debugging purpose, we only execute this loop once
@@ -20,20 +20,17 @@ void task_execution_thread() {
     }
 }
 
-template<typename ReturnType, typename... Args>
-std::future<ReturnType> post_task(std::function<ReturnType(Args...)> f) {
-    std::packaged_task<ReturnType(Args...)> task(f);
-    std::future res = task.get_future();
-    task_queue.push(std::move(task));   // packaged_task is not copyable
-    return res;
+int task() {
+    static std::atomic<int> i = 1;
+    std::cout << i.fetch_add(1, std::memory_order_relaxed) << "task\n";
+    return i.load(std::memory_order_relaxed);
 }
 
-int task() {
-    std::cout << "f\n";
-    return 1;
-}
 int main() {
-    JoinThread t(task_execution_thread);
-    auto f = post_task(std::function<int()>(task));
-    std::cout << f.get() << '\n';
+    JoinThread t1(task_execution_thread);
+    JoinThread t2(task_execution_thread);
+    auto f1 = post_task(task, task_queue);
+    auto f2 = post_task(task, task_queue);
+    std::cout << "f1: " << f1.get() << '\n';
+    std::cout << "f2: " << f2.get() << '\n';
 }
