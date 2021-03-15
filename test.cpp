@@ -39,12 +39,20 @@ struct Node {
 class A {
 public:
     A() {}
-    A(const A&) { std::cout << "copy\n";}
-    A(A&&) { std::cout << "move\n";}
+    void set(int x) {i = x;}
+    A(const A&) { std::cout << "copy constructor\n";}
+    A(A&&) { std::cout << "move constructor\n";}
+    A& operator=(const A&) { std::cout << "copy\n"; return *this; }
+    A& operator=(A&&) { std::cout << "move\n"; return *this; }
+private:
+    int i;
 };
 
-A f(A&& a) {
-    return std::move(a);
+A f() {
+    A a;
+    a.set(10);
+    std::cout << 10;
+    return a;
 }
 int main() {
     // std::atomic head = new Node();
@@ -61,7 +69,6 @@ int main() {
     // f(A(a));
     // std::atomic<std::shared_ptr<int>> p;
     // std::cout << p.compare_exchange_weak(nullptr, 3) << *p.load();
-    std::bitset<3> a("101");
-    std::bitset<3> b("100");
-    std::cout << (a | b.flip()).all() << std::endl;
+    auto a = f();
+    auto b = a;
 }
